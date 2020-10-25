@@ -5,10 +5,8 @@ data['EVENTTIME'] = pd.to_datetime(data['EVENTTIME'])
 test_to_meta = pd.read_csv('Data/test_to_meta.csv')
 refs = pd.read_csv('Data/References.csv')
 joined = data.merge(test_to_meta, left_on='METADATATYPEID', right_on='MetadataTypeId')
-joined = joined.merge(refs, left_on='TestId', right_on='TestId')
 joined.to_pickle('Data/combined.pkl')
 
-# get names for test types, get full names of asset, get geographical area
 # add two tests linking the percentage repeats
 # create a refined dataset based upon percentage repeats
 # create a test comparator using scatter matrix - sort by asset and direction
