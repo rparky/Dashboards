@@ -5,11 +5,11 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
 
-import Filters
+import Names
 
 data = pd.read_pickle('Data/combined.pkl')
-assets = Filters.get_assets()
-directions = Filters.get_direction()
+assets = Names.get_assets()
+directions = Names.get_direction()
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 

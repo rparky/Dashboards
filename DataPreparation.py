@@ -1,9 +1,10 @@
 import pandas as pd
 
-data = pd.read_csv('Data/data.csv')
+data1 = pd.read_csv('Data/2020_10_13.csv')
+data2 = pd.read_csv('Data/2020_10_20.csv')
+data = pd.concat([data1, data2], ignore_index=True)
 data['EVENTTIME'] = pd.to_datetime(data['EVENTTIME'])
-test_to_meta = pd.read_csv('Data/test_to_meta.csv')
-refs = pd.read_csv('Data/References.csv')
+test_to_meta = pd.read_csv('Data/Links/testtotmeta.csv')
 joined = data.merge(test_to_meta, left_on='METADATATYPEID', right_on='MetadataTypeId')
 joined.to_pickle('Data/combined.pkl')
 
