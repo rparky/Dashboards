@@ -4,8 +4,8 @@ data1 = pd.read_csv('Data/2020_10_13.csv')
 data2 = pd.read_csv('Data/2020_10_20.csv')
 data = pd.concat([data1, data2], ignore_index=True)
 data['EVENTTIME'] = pd.to_datetime(data['EVENTTIME'])
-test_to_meta = pd.read_csv('Data/Links/testtotmeta.csv')
-joined = data.merge(test_to_meta, left_on='METADATATYPEID', right_on='MetadataTypeId')
+test_to_meta = pd.read_csv('Data/Links/test_meta2.csv')
+joined = data.merge(test_to_meta, left_on='METADATATYPEID', right_on='METADATATYPEID')
 joined.to_pickle('Data/combined.pkl')
 
 # add two tests linking the percentage repeats

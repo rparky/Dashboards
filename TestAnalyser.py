@@ -2,6 +2,7 @@ import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_daq as daq
 from dash.dependencies import Input, Output
 import plotly.express as px
 
@@ -9,7 +10,7 @@ import Names
 import Links
 
 data = pd.read_pickle('Data/combined.pkl')
-
+good = pd.read_pickle('Data/good.pkl')
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -22,13 +23,20 @@ app.layout = html.Div([
                 options=Names.test_types_dict,
                 value=Names.test_types_dict[0]['value']
             )
-        ], style={'width': '48%', 'float': 'middle', 'display': 'inline-block'}),
+        ], style={'width': '40%', 'float': 'left', 'display': 'inline-block'}),
 
         html.Div([
             dcc.Dropdown(
                 id='reference'
             )
-                  ], style={'width': '48%', 'float': 'right', 'display': 'inline-block'})
+                  ], style={'width': '40%', 'float': 'middle', 'display': 'inline-block'}),
+        html.Div([
+            daq.ToggleSwitch(
+                id='data_quality',
+                value=False
+            ),
+                  ], style={'width': '20%', 'float': 'right', 'display': 'inline-block'}),
+
         ], style={
             'borderBottom': 'thin lightgrey solid',
             'backgroundColor': 'rgb(250, 250, 250)',
@@ -50,9 +58,13 @@ def get_test_options(chosen_test_type):
 
 @app.callback(
     Output('bar', 'figure'),
-    [Input('reference', 'value')])
-def update_graph(chosen_test):
-    chosen_data = data.loc[data['TestId'] == chosen_test]
+    [Input('reference', 'value'),
+     Input('data_quality', 'value')])
+def update_graph(chosen_test, good_quality):
+    quality = data
+    if good_quality:
+        quality = good
+    chosen_data = quality.loc[quality['TestId'] == chosen_test]
     chosen_data = chosen_data.merge(Names.assets, left_on='ASSETID', right_on='ASSETID')
     fig = px.box(data_frame=chosen_data, x='VALUE', y='DATAVALUE',
                  color='TestSubRef', notched=True, hover_name='ASSETID')
@@ -67,11 +79,15 @@ def update_graph(chosen_test):
 @app.callback(
     Output('scatter', 'figure'),
     [Input('bar', 'clickData'),
-     Input('reference', 'value')])
-def display_click_data(clickData, chosen_test):
+     Input('reference', 'value'),
+     Input('data_quality', 'value')])
+def display_click_data(clickData, chosen_test, good_quality):
+    quality = data
+    if good_quality:
+        quality = good
     asset_name = clickData['points'][0]['x']
     chosen_asset = Names.assets.loc[Names.assets['VALUE'] == asset_name, 'ASSETID'].iloc[0]
-    chosen_data = data.loc[(data['ASSETID'] == chosen_asset) & (data['TestId'] == chosen_test)]
+    chosen_data = quality.loc[(quality['ASSETID'] == chosen_asset) & (quality['TestId'] == chosen_test)]
     fig = px.scatter(data_frame=chosen_data, x='EVENTTIME', y='DATAVALUE', color='TestSubRef', title=asset_name)
     lower, upper = Links.get_thresholds_for_a_test(chosen_test)
     fig.update_layout(shapes=[
